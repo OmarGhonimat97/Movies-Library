@@ -8,8 +8,19 @@ const movieData = require('./Movie Data/data.json');
 
 app.get('/', homePage);
 app.get ('/favorite', favoritePage);
-app.use('/', error404Handler);
+app.get('*', error404Handler);
+
+// app.use('/', error404Handler);
 app.use('/', error500Handler);
+
+app.use((error, req, res, next) => {
+    res.status(error.status || 500).send({
+      error: {
+        status: error.status || 500,
+        message: error.message || 'Internal Server Error',
+      },
+    });
+  });
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
