@@ -11,7 +11,7 @@ app.get ('/favorite', favoritePage);
 app.get('*', error404Handler);
 
 // app.use('/', error404Handler);
-app.use('/', error500Handler);
+// app.use('/', error500Handler);
 
 app.use((error, req, res, next) => {
     res.status(error.status || 500).send({
