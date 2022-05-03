@@ -70,9 +70,13 @@ function error404Handler(req, res) {
 
 // error handler 500
 app.use((error, req, res, next) => {
-    console.error(error.stack);
-    res.status(500).send('Something Broke!');
-   })
+    res.status(error.status || 500).send({
+      error: {
+        status: error.status || 500,
+        message: error.message || 'Internal Server Error',
+      },
+    });
+  });
 // function error500Handler (req,res) {
 //     res.type('text/plain');
 //     res.status(500);
