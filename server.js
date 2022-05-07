@@ -5,16 +5,16 @@ const cors = require('cors');
 // const res = require('express/lib/response');
 // const res = require('express');
 const port = 3000;
-require('dotenv').config()
+require('dotenv').config();
 
 const axios = require('axios').default;
 const movieData = require('./Movie Data/data.json');
 const app = express();
-// let apiKey = process.env.API_Key ;
-let apiKey = 'd7110c209df36274700f1e0f5f79e176';
+let apiKey = process.env.API_Key;
+
 
 app.use(cors());
-// or app.get(*, error404Handler)
+// or app.get(*, error404Handler);
 // app.use('/', error404Handler); 
 // app.use('/', error500Handler);
 
