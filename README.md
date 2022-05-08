@@ -9,6 +9,10 @@
 
 ## WRRC-3rd Party API
 ![WRRC-API](./assets/WRRC-API.PNG)
+
+## WRRC-Database
+![WRRC-API](./assets/WRRC-DB.PNG)
+
 ## Overview
 preview movies with some information about them.
 
@@ -25,3 +29,7 @@ Trending page >> shows the trending movies
 - search >> enables the user to search for a movie title
 - moviesTopRated >> show a lits of top rated movies
 - TVTopRated >> show a lits of top rated TV series
+
+## Database
+- added /addMovie for the user to add a movie to database using 'post' method
+- added /getMovies to get the information that was added to the database 
