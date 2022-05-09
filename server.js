@@ -30,6 +30,9 @@ app.use(cors());
 // routes
 app.post('/addMovie', postHandler);
 app.get('/getMovies', getHandler);
+app.put('/UPDATE/:movieID', updateHandler);
+app.delete('/DELETE/:movieID', deleteHandler);
+app.get('/getMovie/:movieID', getByIdHandler);
 app.use(handleError500);
 
 //functions
@@ -64,17 +67,43 @@ function getHandler(req, res) {
     })
 }
 
+function updateHandler (req,res) {
+    let id = req.params.movieID;
+    let {title, rate, poster} = req.body;
+    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3 WHERE id = ${id} RETURNING *`;
+    let values = [title, rate, poster];
+    client.query(sql, values).then(result => {
+        console.log(result.rows[0]);
+        res.json(result.rows[0]);
+    }).catch()
+
+}
+
+function deleteHandler (req,res) {
+    let id = req.params.movieID;
+    let sql = `DELETE FROM movies WHERE id = ${id} RETURNING *`;
+    client.query(sql).then(result => {
+        console.log(result.rows[0]);
+        res.status(204).json([]);
+    }).catch(err => {
+        console.log(err);
+    })
+}
+
+function getByIdHandler (req,res) {
+    let id = req.params.movieID;
+    let sql = `SELECT * FROM movies WHERE id = ${id}`;
+    client.query(sql).then((result) => {
+        console.log(result)
+        res.json(result.rows);
+    }).catch(err => {
+        console.log(err);
+    })
+}
+
 function handleError500(error, req, res) {
     res.status(500).send(error);
 }
-
-client.connect().then(() => {
-
-    app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
-    })
-
-});
 
 
 app.get('/', homePage);
@@ -253,3 +282,11 @@ function TVTopRatedhandler(req, res) {
         }))
 
 }
+
+client.connect().then(() => {
+
+    app.listen(port, () => {
+        console.log(`Example app listening on port ${port}`)
+    })
+
+});
