@@ -23,7 +23,14 @@ let DATABASE_URL = process.env.DATABASE_URL
 
 const { Client } = require('pg');
 const { query } = require('express');
-const client = new Client(DATABASE_URL);
+const client = new Client({     
+    connectionString: process.env.DATABASE_URL, 
+        ssl: {       
+              rejectUnauthorized: false  
+               }
+     })
+
+// const client = new Client(DATABASE_URL);
 
 app.use(cors());
 // or app.get(*, error404Handler);
@@ -36,7 +43,7 @@ app.get('/getMovies', getHandler);
 app.put('/UPDATE/:movieID', updateHandler);
 app.delete('/DELETE/:movieID', deleteHandler);
 app.get('/getMovie/:movieID', getByIdHandler);
-app.use(handleError500);
+// app.use(handleError500);
 
 //functions
 // http://localhost:3000/addMovie
@@ -55,9 +62,9 @@ function postHandler(req, res) {
         console.log(result)
         return res.status(201).json(result.rows);
 
-    }).catch((err) => {
-        handleError500(err, req, res);
-    })
+    }).catch(error => {
+        res.send("error")
+        })
 }
 // http://localhost:3000/getMovies
 function getHandler(req, res) {
@@ -65,8 +72,8 @@ function getHandler(req, res) {
     client.query(sql).then((result) => {
         console.log(result)
         res.json(result.rows);
-    }).catch((err) => {
-        handleError500(err, req, res);
+    }).catch(error => {
+        res.send("error");
     })
 }
 
@@ -104,9 +111,9 @@ function getByIdHandler (req,res) {
     })
 }
 
-function handleError500(error, req, res) {
-    res.status(500).send(error);
-}
+// function handleError500(error, req, res) {
+//     res.status(500).send(error);
+// }
 
 
 app.get('/', homePage);
@@ -156,14 +163,14 @@ function error404Handler(req, res) {
 }
 
 // error handler 500
-// app.use((error, req, res, next) => {
-//     res.status(error.status || 500).send({
-//         error: {
-//             status: error.status || 500,
-//             message: error.message || 'Internal Server Error',
-//         },
-//     });
-// });
+app.use((error, req, res, next) => {
+    res.status(error.status || 500).send({
+        error: {
+            status: error.status || 500,
+            message: error.message || 'Internal Server Error',
+        },
+    });
+});
 
 // function error500Handler (req,res) {
 //     res.type('text/plain');
