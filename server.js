@@ -4,9 +4,12 @@ const express = require('express');
 const cors = require('cors');
 // const res = require('express/lib/response');
 // const res = require('express');
-const port = 3000;
-const bodyParser = require('body-parser');
 require('dotenv').config();
+const PORT = process.env.PORT
+// const PORT = 3000;
+// DATABASE_URL =postgress://omar:password:0000@localhost:5432/movies1
+const bodyParser = require('body-parser');
+
 
 const axios = require('axios').default;
 const movieData = require('./Movie Data/data.json');
@@ -16,11 +19,11 @@ let apiKey = process.env.API_Key;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //app.use(express.json());
-let DBurl = "postgress://omar:password:0000@localhost:5432/movies1"
+let DATABASE_URL = process.env.DATABASE_URL
 
 const { Client } = require('pg');
 const { query } = require('express');
-const client = new Client(DBurl)
+const client = new Client(DATABASE_URL);
 
 app.use(cors());
 // or app.get(*, error404Handler);
@@ -285,8 +288,8 @@ function TVTopRatedhandler(req, res) {
 
 client.connect().then(() => {
 
-    app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
+    app.listen(PORT, () => {
+        console.log(`Example app listening on PORT ${PORT}`)
     })
 
 });
