@@ -1,25 +1,35 @@
 'use strict';
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require('body-parser');
+const movieData = require('./Movie Data/data.json');
+const axios = require("axios").default;
+require("dotenv").config();
+//const PORT = 3000;
+const app = express();
+app.use(cors());
 
-const express = require('express');
-const cors = require('cors');
-// const res = require('express/lib/response');
-// const res = require('express');
-require('dotenv').config();
-const PORT = process.env.PORT
+// const express = require('express');
+// const cors = require('cors');
+
+// require('dotenv').config();
+const PORT = process.env.PORT;
+let apiKey = process.env.API_Key;
+let DATABASE_URL = process.env.DATABASE_URL;
+
+
 // const PORT = 3000;
 // DATABASE_URL =postgress://omar:password:0000@localhost:5432/movies1
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 
 
-const axios = require('axios').default;
-const movieData = require('./Movie Data/data.json');
-const app = express();
-let apiKey = process.env.API_Key;
+// const axios = require('axios').default;
+// const movieData = require('./Movie Data/data.json');
+// const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //app.use(express.json());
-let DATABASE_URL = process.env.DATABASE_URL
 
 const { Client } = require('pg');
 const { query } = require('express');
