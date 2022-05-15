@@ -1,26 +1,46 @@
 'use strict';
-
-const express = require('express');
-const cors = require('cors');
-// const res = require('express/lib/response');
-// const res = require('express');
-const port = 3000;
+const express = require("express");
+const cors = require("cors");
 const bodyParser = require('body-parser');
-require('dotenv').config();
-
-const axios = require('axios').default;
 const movieData = require('./Movie Data/data.json');
+const axios = require("axios").default;
+require("dotenv").config();
+//const PORT = 3000;
 const app = express();
+app.use(cors());
+
+// const express = require('express');
+// const cors = require('cors');
+
+// require('dotenv').config();
+const PORT = process.env.PORT;
 let apiKey = process.env.API_Key;
+let DATABASE_URL = process.env.DATABASE_URL;
+
+
+// const PORT = 3000;
+// DATABASE_URL =postgress://omar:password:0000@localhost:5432/movies1
+// const bodyParser = require('body-parser');
+
+
+// const axios = require('axios').default;
+// const movieData = require('./Movie Data/data.json');
+// const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //app.use(express.json());
-let DBurl = "postgress://omar:password:0000@localhost:5432/movies1"
 
 const { Client } = require('pg');
 const { query } = require('express');
-const client = new Client(DBurl)
+const client = new Client({     
+    connectionString: process.env.DATABASE_URL, 
+        ssl: {       
+              rejectUnauthorized: false  
+               }
+     })
+
+// const client = new Client(DATABASE_URL);
 
 app.use(cors());
 // or app.get(*, error404Handler);
@@ -33,7 +53,7 @@ app.get('/getMovies', getHandler);
 app.put('/UPDATE/:movieID', updateHandler);
 app.delete('/DELETE/:movieID', deleteHandler);
 app.get('/getMovie/:movieID', getByIdHandler);
-app.use(handleError500);
+// app.use(handleError500);
 
 //functions
 // http://localhost:3000/addMovie
@@ -43,18 +63,19 @@ function postHandler(req, res) {
     let title = req.body.title;
     let rate = req.body.rate;
     let poster = req.body.poster;
-    // let {title, rate, poster} = req.body; >> easier way (destructuring)
+    let comment = req.body.comment;
+    // let {title, rate, poster, comment} = req.body; >> easier way (destructuring)
 
-    let sql = `INSERT INTO movies (title, rate, poster) VALUES ($1,$2,$3) RETURNING *;`;
-    let values = [title, rate, poster];
+    let sql = `INSERT INTO movies (title, rate, poster, comment) VALUES ($1,$2,$3,$4) RETURNING *;`;
+    let values = [title, rate, poster, comment];
 
     client.query(sql, values).then(result => {
         console.log(result)
         return res.status(201).json(result.rows);
 
-    }).catch((err) => {
-        handleError500(err, req, res);
-    })
+    }).catch(error => {
+        res.send("error in posting")
+        })
 }
 // http://localhost:3000/getMovies
 function getHandler(req, res) {
@@ -62,16 +83,16 @@ function getHandler(req, res) {
     client.query(sql).then((result) => {
         console.log(result)
         res.json(result.rows);
-    }).catch((err) => {
-        handleError500(err, req, res);
+    }).catch(error => {
+        res.send("error");
     })
 }
 
 function updateHandler (req,res) {
     let id = req.params.movieID;
-    let {title, rate, poster} = req.body;
-    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3 WHERE id = ${id} RETURNING *`;
-    let values = [title, rate, poster];
+    let {title, rate, poster, comment} = req.body;
+    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3, comment=$4 WHERE id = ${id} RETURNING *`;
+    let values = [title, rate, poster, comment];
     client.query(sql, values).then(result => {
         console.log(result.rows[0]);
         res.json(result.rows[0]);
@@ -101,9 +122,9 @@ function getByIdHandler (req,res) {
     })
 }
 
-function handleError500(error, req, res) {
-    res.status(500).send(error);
-}
+// function handleError500(error, req, res) {
+//     res.status(500).send(error);
+// }
 
 
 app.get('/', homePage);
@@ -138,13 +159,14 @@ function favoritePage(req, res) {
     console.log(apiKey);
 }
 
-function Movie(id, title, release_date, vote_average, posterPath, overview) {
+function Movie(id, title, release_date, vote_average, posterPath, overview, comment) {
     this.id = id;
     this.title = title;
     this.release_date = release_date;
     this.vote_average = vote_average;
     this.posterPath = posterPath;
     this.overview = overview;
+    this.comment = comment;
 }
 
 function error404Handler(req, res) {
@@ -153,14 +175,14 @@ function error404Handler(req, res) {
 }
 
 // error handler 500
-// app.use((error, req, res, next) => {
-//     res.status(error.status || 500).send({
-//         error: {
-//             status: error.status || 500,
-//             message: error.message || 'Internal Server Error',
-//         },
-//     });
-// });
+app.use((error, req, res, next) => {
+    res.status(error.status || 500).send({
+        error: {
+            status: error.status || 500,
+            message: error.message || 'Internal Server Error',
+        },
+    });
+});
 
 // function error500Handler (req,res) {
 //     res.type('text/plain');
@@ -285,8 +307,8 @@ function TVTopRatedhandler(req, res) {
 
 client.connect().then(() => {
 
-    app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
+    app.listen(PORT, () => {
+        console.log(`Example app listening on PORT ${PORT}`)
     })
 
 });
