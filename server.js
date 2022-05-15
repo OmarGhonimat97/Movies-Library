@@ -63,17 +63,18 @@ function postHandler(req, res) {
     let title = req.body.title;
     let rate = req.body.rate;
     let poster = req.body.poster;
-    // let {title, rate, poster} = req.body; >> easier way (destructuring)
+    let comment = req.body.comment;
+    // let {title, rate, poster, comment} = req.body; >> easier way (destructuring)
 
-    let sql = `INSERT INTO movies (title, rate, poster) VALUES ($1,$2,$3) RETURNING *;`;
-    let values = [title, rate, poster];
+    let sql = `INSERT INTO movies (title, rate, poster, comment) VALUES ($1,$2,$3,$4) RETURNING *;`;
+    let values = [title, rate, poster, comment];
 
     client.query(sql, values).then(result => {
         console.log(result)
         return res.status(201).json(result.rows);
 
     }).catch(error => {
-        res.send("error")
+        res.send("error in posting")
         })
 }
 // http://localhost:3000/getMovies
@@ -89,9 +90,9 @@ function getHandler(req, res) {
 
 function updateHandler (req,res) {
     let id = req.params.movieID;
-    let {title, rate, poster} = req.body;
-    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3 WHERE id = ${id} RETURNING *`;
-    let values = [title, rate, poster];
+    let {title, rate, poster, comment} = req.body;
+    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3, comment=$4 WHERE id = ${id} RETURNING *`;
+    let values = [title, rate, poster, comment];
     client.query(sql, values).then(result => {
         console.log(result.rows[0]);
         res.json(result.rows[0]);
@@ -158,13 +159,14 @@ function favoritePage(req, res) {
     console.log(apiKey);
 }
 
-function Movie(id, title, release_date, vote_average, posterPath, overview) {
+function Movie(id, title, release_date, vote_average, posterPath, overview, comment) {
     this.id = id;
     this.title = title;
     this.release_date = release_date;
     this.vote_average = vote_average;
     this.posterPath = posterPath;
     this.overview = overview;
+    this.comment = comment;
 }
 
 function error404Handler(req, res) {
