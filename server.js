@@ -89,10 +89,14 @@ function getHandler(req, res) {
 }
 
 function updateHandler (req,res) {
+    // let id = req.params.movieID;
+    // let {title, rate, poster, comment} = req.body;
+    // let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3, comment=$4 WHERE id = ${id} RETURNING *`;
+    // let values = [title, rate, poster, comment];
     let id = req.params.movieID;
-    let {title, rate, poster, comment} = req.body;
-    let sql = `UPDATE movies SET title=$1, rate=$2, poster=$3, comment=$4 WHERE id = ${id} RETURNING *`;
-    let values = [title, rate, poster, comment];
+    let {comment} = req.body;
+    let sql = `UPDATE movies SET comment=$1 WHERE id = ${id} RETURNING *`;
+    let values = [comment];
     client.query(sql, values).then(result => {
         console.log(result.rows[0]);
         res.json(result.rows[0]);
